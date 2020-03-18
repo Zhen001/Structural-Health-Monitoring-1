@@ -1,0 +1,3 @@
+1. 先用“createacc.m”把“acc(1-44).mat”等转换后放到“第一步提取：matlab”内
+2. 再用“HB-提取数据.ipynb”把“第一步提取：matlab”内的m文件提取到“第二步提取：python”
+3. 最后用“HB-拉回零均值.ipynb”把“第二步提取：python”内的pkl文件提取到最外面，取名”acc_zero.pkl“
