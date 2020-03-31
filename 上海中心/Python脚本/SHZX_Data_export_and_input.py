@@ -583,7 +583,7 @@ def alt_configure(chart):
              .configure_legend(title=None, labelFont='Times New Roman',labelFontSize=15, labelFontWeight='bold',
                                orient='top-left', symbolStrokeWidth=4, symbolSize=300,
                                rowPadding=15, labelLimit=400, symbolOffset=15)
-             .interactive(bind_y = False) # 交互性设置
+             #.interactive(bind_y = False) # 交互性设置
             )
     return(chart)
 
@@ -614,20 +614,22 @@ def draw_FS2(data, title): # 风向
                         alt.Y('wind_direction:Q', title='Wind Direction (°)'))
                 )
     alt_configure(F2_chart).display()
-def draw_FS3(data, title): # 风速*sin(风向)
+def draw_FS3(data1, title): # 风速*sin(风向)
+    data = data1.copy()
     data['wind_speed'] = data['wind_speed']*np.sin(np.deg2rad(data['wind_direction']))
     F3_chart = (alt
-                .Chart(data['wind_speed'].reset_index(), title=title)
+                .Chart(data['wind_speed'].reset_index(), title=title+'  风速*sin(风向)')
                 .mark_line(strokeWidth=2, strokeOpacity=0.9)
                 .encode(alt.X('index:T', title=None, axis=alt.Axis(format='%d-%0H:%0M')),
                         alt.Y('wind_speed:Q', title='Wind Speed (m/s)'))
                 )
     alt_configure(F3_chart).display()
 
-def draw_FS4(data, title): # 风速*cos(风向)
+def draw_FS4(data1, title): # 风速*cos(风向)
+    data = data1.copy()
     data['wind_speed'] = data['wind_speed']*np.cos(np.deg2rad(data['wind_direction']))
     F4_chart = (alt
-                .Chart(data['wind_speed'].reset_index(), title=title)
+                .Chart(data['wind_speed'].reset_index(), title=title+'  风速*cos(风向)')
                 .mark_line(strokeWidth=2, strokeOpacity=0.9)
                 .encode(alt.X('index:T', title=None, axis=alt.Axis(format='%d-%0H:%0M')),
                         alt.Y('wind_speed:Q', title='Wind Speed (m/s)'))
