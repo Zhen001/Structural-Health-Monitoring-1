@@ -19,6 +19,7 @@ p.addOptional('draw', 0);               % draw：是否作图
 p.addOptional('percent', 10);           % percent：峰值下限取最高点的百分之几
 p.addOptional('minpeakdist', 0.01);     % minpeakdist：峰值之间最小距离
 p.addOptional('new_f', 0);              % new_f：降采样频率（避免滤波时数据溢出），也可用于增采样
+p.addOptional('Xrange',[0,10]);         % Xrange：作图范围
 
 p.parse(varargin{:});
 filtering = p.Results.filtering;
@@ -27,8 +28,9 @@ m = p.Results.m;
 if_log = p.Results.if_log;
 draw = p.Results.draw;
 percent = p.Results.percent;
-minpeakdist = p.Results.minpeakdist; 
-new_f = p.Results.new_f; 
+minpeakdist = p.Results.minpeakdist;
+new_f = p.Results.new_f;
+Xrange = p.Results.Xrange;
 
 %% 1.数据预处理
 if size(response,2)>size(response,1)
@@ -45,6 +47,9 @@ if new_f
 else
     N=size(response,1);                 	% 原始数据长
 end
+
+% 消除趋势项
+response = detrend(response);               % 默认每列单独进行
 
 % 滤波  
 if sum(filtering ~= [0,0])
@@ -79,26 +84,21 @@ end
 % [b,a]=iirnotch(W0,BW);                    % 设计IIR数字陷波器
 % response=filter(b,a,response);            % 对信号滤波
   
-%% 2.预分配内存、平均周期图窗口长度设置
+%% 2.预分配内存、多个周期图平均法窗口长度设置
+PSD=zeros(floor((N/2)+1),n); f=zeros(floor((N/2)+1),n);   % 预分配内存（方法1） 
 if PSDfangfa==2
-    N2=floor(N/m);                                            % 平均周期图窗口长度（方法2）
+    N2=floor(N/m);                                        % N2:多个周期图平均法（Welch）窗口长度
     if mod(N2,2)==1,N2=N2+1;end
-    PSD=zeros(floor((N2/2)+1),n); f=zeros(floor((N2/2)+1),n); % 预分配内存（方法2）
-elseif PSDfangfa==1
-    PSD=zeros(floor((N/2)+1),n); f=zeros(floor((N/2)+1),n);   % 预分配内存（方法1） 
 end
-
 %% 3.依次用各测点数据计算PSD
 for i=1:n
     x=response(:,i);
+    window=hamming(N);                      % 选择一种窗函数
     if PSDfangfa==1                         % 1.周期图法（Periodogram）
-        window=hamming(N);                	% 选择一种窗函数
         [PSD(:,i),f(:,i)]=periodogram(x,window,length(x),Fs);
     elseif PSDfangfa==2                  	% 2.多个周期图平均法（Welch）
-        window=hamming(N2);                 % 选择一种窗函数
         noverlap=N2/2;                      % 分段序列重叠的采样点数（长度）
-        range='onesided';                   % 单边谱
-        [PSD(:,i),f(:,i)]=pwelch(x,window,noverlap,N2,Fs,range);  
+        [PSD(:,i),f(:,i)]=pwelch(x,window,noverlap,N,Fs,'onesided');  
     end
 end
 
@@ -118,7 +118,7 @@ end
 
 %% 6.绘图
 if draw
-    xlimt=[0,10];                           % 绘图范围（需手动调整）
+    xlimt=Xrange;                           % 绘图范围（需手动调整）
     interval=1;                             % 横坐标间隔（需手动调整）
 
 % 绘制ANPSD
@@ -127,7 +127,7 @@ if draw
     grid on; box on; xlim(xlimt); MonitorPosition = get(0,'MonitorPosition'); 
     set(gcf,'color','w','position',[0.2*MonitorPosition(3),MonitorPosition(4)/5,0.6*MonitorPosition(3),MonitorPosition(4)/2]);   % 控制出图背景色和大小
     Xlims=get(gca,'Xlim'); Ylims=get(gca,'Ylim'); set(gca,'XTick',0:interval:Xlims(2))
-    set(gca, 'Position', get(gca, 'OuterPosition') - 2.3 * get(gca, 'TightInset') * [-2.5 0 2.5 0; 0 -1 0 1; 0 0 1 0; 0 0 0 1]); % 去除figure中多余的空白部分，注意，在设置坐标label之前做这件事可以避免麻烦
+    % set(gca, 'Position', get(gca, 'OuterPosition') - 2.3 * get(gca, 'TightInset') * [-2.5 0 2.5 0; 0 -1 0 1; 0 0 1 0; 0 0 0 1]); % 去除figure中多余的空白部分，注意，在设置坐标label之前做这件事可以避免麻烦
     title('平均正则化功率谱密度ANPSD','FontName','华文仿宋','FontWeight','bold','FontSize',20,'LineWidth',2,'position',[mean(Xlims) Ylims(2)+0.02*diff(Ylims)])
     xlabel('频率/Hz','FontName','华文仿宋','FontWeight','bold','FontSize',15,'LineWidth',2,'position',[mean(Xlims) Ylims(1)-0.04*diff(Ylims)])
     ylabel('功率谱密度/(dB/Hz)','FontName','华文仿宋','FontWeight','bold','FontSize',15,'LineWidth',2,'position',[Xlims(1)-0.05*diff(Xlims) mean(Ylims)])
