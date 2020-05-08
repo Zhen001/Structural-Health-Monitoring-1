@@ -41,8 +41,8 @@ def Peak_Picking_function(acc,Fs,new_f,filtering,PSDfangfa,m,if_log,draw,percent
     return(Peak, ANPSD)
 
 # draw_Peak_Picking
-def draw_Peak_Picking(Peak, ANPSD, domain, i_code_list, time_stamp):
-    title_name = '%s  %s'%(i_code_list,time_stamp)
+def draw_Peak_Picking(Peak, ANPSD, domain, i_code_group, time_stamp):
+    title_name = '%s  %s'%(i_code_group,time_stamp)
     chart1 = (alt
               .Chart(ANPSD, title=title_name)
               .mark_line(strokeWidth=2, clip=True)
@@ -74,24 +74,22 @@ def draw_Peak_Picking(Peak, ANPSD, domain, i_code_list, time_stamp):
     chart.display()
 
 # Peak_Picking
-def Peak_Picking(i_code_list,date_start,date_end,long,Fs,new_f,filtering,PSDfangfa,m,if_log,draw,draw_matlab,percent,minpeakdist):
-    f = pd.DataFrame([])
-    date_list = [x.strftime('%Y-%m-%d  %H:%M:%S') for x in pd.date_range(date_start, date_end)]
-    for time_stamp in date_list:
-        # 获取数据
-        acc = pd.DataFrame([])
-        for i_code in i_code_list:
-            time_start = pd.Timestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
-            time_end = (pd.Timestamp(time_stamp) + pd.Timedelta('%sT'%long)).strftime('%Y-%m-%d %H:%M:%S')
-            i_data = get_data(i_code, time_start, time_end).T
-            acc = acc.append(i_data)
-        # 模态识别
-        Peak, ANPSD = Peak_Picking_function(acc,Fs,new_f,filtering,PSDfangfa,m,if_log,draw_matlab,percent,minpeakdist)
-        f = f.append(Peak['f'])
-        # 绘图
-        if draw:
-            draw_Peak_Picking(Peak, ANPSD, [0,1], i_code_list, time_start)
-    f.index = pd.date_range(date_start, date_end)
+def Peak_Picking(i_code,date_start,date_end,resample_frequency,long,Fs,new_f,filtering,PSDfangfa,m,if_log,draw,draw_matlab,percent,minpeakdist):
+    f = pd.DataFrame()
+    date_start = date_start.split(' ')[0]
+    date_end = date_end.split(' ')[0]
+    if judge_data_completeness(i_code, date_start, date_end): 
+        for i_date in get_date_list(date_start, date_end):
+            i_data = get_i_data(i_code, i_date).resample(resample_frequency)
+            for i in i_data:
+                acc = i[1][:long*Fs*60]
+                # 模态识别
+                Peak, ANPSD = Peak_Picking_function(acc,Fs,new_f,filtering,PSDfangfa,m,if_log,draw_matlab,percent,minpeakdist)
+                f = f.append(Peak['f'])
+                # 绘图
+                if draw:
+                    draw_Peak_Picking(Peak, ANPSD, [0,1], i_code_group, time_start)
+    f.index = pd.date_range(date_start, pd.Timestamp(date_end) + pd.Timedelta('1D'), freq=resample_frequency, closed='left')
     return(f)
 
 # SSICOV_function
@@ -138,10 +136,10 @@ def SSICOV_function(acc,Ts,Fs,new_f,filtering,if_log,draw,draw_matlab,Xrange,eps
     return(SSI, SSI_data, PP_data)
 
 # draw_SSICOV
-def draw_SSICOV(SSI_data, PP_data, Xrange, i_code_list, time_start):
+def draw_SSICOV(SSI_data, PP_data, Xrange, i_code_group, time_start):
     names = locals()
     # 绘图参数
-    title_name = '%s  %s'%(i_code_list,time_stamp)
+    title_name = '%s  %s'%(i_code_group,time_stamp)
     stroke = {'all pole':'#BAB0AC','stable freq.':'#00C853','stable freq. & MAC':'#B003CA','stable freq. & damp.':'#1679F0','stable pole':'black'}
     fill = {'all pole':'white','stable freq.':'white','stable freq. & MAC':'white','stable freq. & damp.':'white','stable pole':'#FF0001'}
     shape = {'all pole':'circle','stable freq.':'triangle-up','stable freq. & MAC':'square','stable freq. & damp.':'diamond','stable pole':'circle'}
@@ -181,13 +179,13 @@ def draw_SSICOV(SSI_data, PP_data, Xrange, i_code_list, time_start):
     SSI_PP_chart.display()
 
 # SSICOV
-def SSICOV(i_code_list,date_start,date_end,long,Ts,Fs,new_f,filtering,if_log,draw,draw_matlab,Xrange,eps_freq):
+def SSICOV(i_code_group,date_start,date_end,resample_frequency,long,Ts,Fs,new_f,filtering,if_log,draw,draw_matlab,Xrange,eps_freq):
     f = pd.DataFrame([])
-    date_list = [x.strftime('%Y-%m-%d  %H:%M:%S') for x in pd.date_range(date_start, date_end)]
+    date_list = [x.strftime('%Y-%m-%d  %H:%M:%S') for x in pd.date_range(date_start, date_end, freq=resample_frequency, closed='left')]
     for time_stamp in date_list:
         # 获取数据
         acc = pd.DataFrame([])
-        for i_code in i_code_list:
+        for i_code in i_code_group:
             time_start = pd.Timestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
             time_end = (pd.Timestamp(time_stamp) + pd.Timedelta('%sT'%long)).strftime('%Y-%m-%d %H:%M:%S')
             i_data = get_data(i_code, time_start, time_end).T
@@ -197,6 +195,6 @@ def SSICOV(i_code_list,date_start,date_end,long,Ts,Fs,new_f,filtering,if_log,dra
         f = f.append(SSI['fn'])
         # 绘图
         if draw:
-            draw_SSICOV(SSI_data, PP_data, Xrange, i_code_list, time_start)
-    f.index = pd.date_range(date_start, date_end)
+            draw_SSICOV(SSI_data, PP_data, Xrange, i_code_group, time_start)
+    f.index = pd.date_range(date_start, date_end, freq=resample_frequency, closed='left')
     return(f)

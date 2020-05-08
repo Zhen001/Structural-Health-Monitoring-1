@@ -410,7 +410,7 @@ def remove_outliers(i_data):
                 b = i+6000 # 后1分钟索引
                 if a<0:
                     part_data[i] = part_data[b]
-                elif b>len(part_data):
+                elif b>=len(part_data):
                     part_data[i] = part_data[a]
                 else:
                     part_data[i] = (part_data[a] + part_data[b])/2
