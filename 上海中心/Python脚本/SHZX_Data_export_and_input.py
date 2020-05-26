@@ -394,7 +394,7 @@ def pull_back_to_zero(i_data):
             i_data[i*step:(i+1)*step] -= mean_list[i]
     return(i_data)
 
-# 去除离群值
+# 修复离群值
 def remove_outliers(i_data):
     new_i_data = np.array([])
     i_data = np.array(i_data)
@@ -675,6 +675,7 @@ def draw_FS1(data, title): # 风速
                 .Chart(data['wind_speed'].reset_index(), title=title)
                 .mark_line(strokeWidth=2, strokeOpacity=0.9)
                 .encode(alt.X('index:T', title=None, axis=alt.Axis(format='%d-%0H:%0M')),
+                        #alt.X('index:T', title=None, axis=alt.Axis(format='%m-%0d')),
                         alt.Y('wind_speed:Q', title='Wind Speed (m/s)'))
                 )
     alt_configure(F1_chart).display()
@@ -684,6 +685,7 @@ def draw_FS2(data, title): # 风向
                 .Chart(data['wind_direction'].reset_index(), title=title)
                 .mark_line(strokeWidth=2, strokeOpacity=0.9)
                 .encode(alt.X('index:T', title=None, axis=alt.Axis(format='%d-%0H:%0M')),
+                        #alt.X('index:T', title=None, axis=alt.Axis(format='%m-%0d')),
                         alt.Y('wind_direction:Q', title='Wind Direction (°)'))
                 )
     alt_configure(F2_chart).display()
