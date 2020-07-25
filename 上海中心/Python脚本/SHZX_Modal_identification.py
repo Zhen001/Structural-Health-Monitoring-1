@@ -14,7 +14,7 @@ else:
 
 # Peak_Picking_function
 def Peak_Picking_function(acc,Fs,new_f,filtering,PSDfangfa,m,if_log,draw,percent,minpeakdist):
-    engine.cd(r'E:\【论文】\【小论文】\模态识别\Matlab脚本\Method_Functions')
+    engine.cd(r'/SHZX_output/Matlab_Functions')
     [Frequency,PSD,Locs,Peaks] = engine.ANPSD_function_py(
         matlab.double(np.array(acc).tolist()),
         float(Fs),
@@ -95,7 +95,7 @@ def Peak_Picking(i_code,date_start,date_end,resample_frequency,long,Fs,new_f,fil
 # SSICOV_function
 def SSICOV_function(acc,Ts,Fs,new_f,filtering,if_log,draw,draw_matlab,Xrange,eps_freq):
     SSI = pd.DataFrame([])
-    engine.cd(r'E:\【论文】\【小论文】\模态识别\Matlab脚本\Method_Functions')
+    engine.cd(r'/SHZX_output/Matlab_Functions')
     [fn,zeta,phi,plotdata] = engine.SSICOV_function_py(
         matlab.double(np.array(acc).tolist()),
         float(Fs),
@@ -136,7 +136,7 @@ def SSICOV_function(acc,Ts,Fs,new_f,filtering,if_log,draw,draw_matlab,Xrange,eps
     return(SSI, SSI_data, PP_data)
 
 # draw_SSICOV
-def draw_SSICOV(SSI_data, PP_data, Xrange, i_code_group, time_start):
+def draw_SSICOV(SSI_data, PP_data, Xrange, i_code_group, time_stamp):
     names = locals()
     # 绘图参数
     title_name = '%s  %s'%(i_code_group,time_stamp)
@@ -166,7 +166,7 @@ def draw_SSICOV(SSI_data, PP_data, Xrange, i_code_group, time_start):
                         alt.Y('mode:Q',  title='Number of poles'))
                )
 
-    SSI_PP_chart = ((SSI_chart1+SSI_chart3+SSI_chart4+SSI_chart5+SSI_chart2+PP_chart)
+    SSI_PP_chart = ((names['SSI_chart1']+names['SSI_chart3']+names['SSI_chart4']+names['SSI_chart5']+names['SSI_chart2']+PP_chart)
                  .properties(width=1000, height=400)
                  .configure_axis(grid=True, titleFontSize=28, labelFontSize=22, labelFont='Times New Roman', titleFont='Times New Roman', domainColor='#000', tickColor='#000')
                  .configure_title(font='Times New Roman', fontSize=30, dy=-10)

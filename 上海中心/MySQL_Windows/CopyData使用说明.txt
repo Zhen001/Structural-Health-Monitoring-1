@@ -1,0 +1,10 @@
+在InnoDB引擎下通过x.ibd和x.frm文件对数据库进行批量恢复操作
+
+Step1:将x.ibd和x.frm文件下载至本地，并修改File_download_path
+Step2:将目标数据库路径输入至MySQL_DataPath
+Step3:修改需要拷入的数据编号及日期
+Step4:运行整个程序
+
+
+注意事项：
+1.日期格式为“年-月-日:年-月-日”，如有多个时间段，以逗号分隔；

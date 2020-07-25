@@ -1,0 +1,4 @@
+function 是给matlab用的，没怎么大改过，也没怎么用过
+function_py 是给python用的，仔细修改过
+function_py_zht 是被淘汰的自己写的版本，或者书上找的版本
+TDD_function_py 据作者说，比AFDD快，但是里面没有内嵌peak-picking，需要算出频率作为输入，还要给出频率范围以进行模态分离，等有空了改进一下，把AFDD里的代码改进来
