@@ -170,59 +170,59 @@ def get_exp_data(cursor, table, channel, i_data_path):
     except Exception as ex:
         print(Exception, ':', ex)
 
-def get_qx_data(cursor, table, channel, i_data_path, ratios, time1, time2): #倾角仪
+def get_qx_data(cursor, table, channel, i_data_path, ratios): #倾角仪
     ratios = float(ratios)
     data_i = 'data'+str(channel)
     sql = '''select cur_time, asin(%s/21.64)-%f as qx into outfile '%s' fields
-            terminated by '\t' from %s where cur_time between '%s' and '%s' '''  % (data_i,ratios,i_data_path,table,time1,time2)
+            terminated by '\t' from %s'''  % (data_i,ratios,i_data_path,table)
     try:
         cursor.execute(sql)
         print(i_data_path, 'done')
     except Exception as ex:
         print(Exception, ':', ex)
 
-def get_fy_data(cursor, table, channel, i_data_path, ratios, time1, time2): #风压
+def get_fy_data(cursor, table, channel, i_data_path, ratios): #风压
     (rb, rc) = ratios.split(',')
     rb = float(rb)
     rc = float(rc)
     data_i = 'data'+str(channel)
     sql = '''select cur_time, %s*%f-%f as fy into outfile '%s' fields
-            terminated by '\t' from %s where cur_time between '%s' and '%s' '''  % (data_i,rb,rc,i_data_path,table,time1,time2)
+            terminated by '\t' from %s'''  % (data_i,rb,rc,i_data_path,table)
     try:
         cursor.execute(sql)
         print(i_data_path, 'done')
     except Exception as ex:
         print(Exception, ':', ex)
 
-def get_wyj_data(cursor, table, channel, i_data_path, ratios, time1, time2): #阻尼位移计
+def get_wyj_data(cursor, table, channel, i_data_path, ratios): #阻尼位移计
     (rb, rc) = ratios.split(',')
     rb = float(rb)
     rc = float(rc)
     data_i = 'data'+str(channel)
     sql = '''select cur_time, %s*%f+%f as fy into outfile '%s' fields
-            terminated by '\t' from %s where cur_time between '%s' and '%s' '''  % (data_i,rb,rc,i_data_path,table,time1,time2)
+            terminated by '\t' from %s'''  % (data_i,rb,rc,i_data_path,table)
     try:
         cursor.execute(sql)
         print(i_data_path, 'done')
     except Exception as ex:
         print(Exception, ':', ex)
 
-def get_fz_data(cursor, table, channel, i_data_path, ratios, time1, time2): #风振
+def get_fz_data(cursor, table, channel, i_data_path, ratios): #风振
     ra = float(ratios)
     data_i = 'data'+str(channel)
     sql = '''select cur_time, %s*%f as fz into outfile '%s' fields
-            terminated by '\t' from %s where cur_time between '%s' and '%s' '''  % (data_i,ra,i_data_path,table,time1,time2)
+            terminated by '\t' from %s'''  % (data_i,ra,i_data_path,table)
     try:
         cursor.execute(sql)
         print(i_data_path, 'done')
     except Exception as ex:
         print(Exception, ':', ex)
 
-def get_zd_data(cursor, table, channel, i_data_path, ratios, time1, time2): #加速度
+def get_zd_data(cursor, table, channel, i_data_path, ratios): #加速度
     ra = float(ratios)
     data_i = 'data'+str(channel)
     sql = '''select cur_time, %s*%f as zd into outfile '%s' fields
-            terminated by '\t' from %s where cur_time between '%s' and '%s' '''  % (data_i,ra,i_data_path,table,time1,time2)
+            terminated by '\t' from %s'''  % (data_i,ra,i_data_path,table)
     try:
         cursor.execute(sql)
         print(i_data_path, 'done')
@@ -248,13 +248,13 @@ def get_temp_data(cursor, table, channel, i_data_path, i_date): #温度
     except Exception as ex:
         print(Exception, ':', ex)
 
-def get_fs_data(cursor, table, i_data_path, i_code, time1, time2): #风速风向
+def get_fs_data(cursor, table, i_data_path, i_code): #风速风向
     if i_code == 'FS-132-01':
         sql = '''select cur_time, data1*10, data2*108 into
-                outfile '%s' fields terminated by '\t' from %s where cur_time between '%s' and '%s' ''' % (i_data_path, table, time1, time2)
+                outfile '%s' fields terminated by '\t' from %s''' % (i_data_path, table)
     else:
         sql = '''select cur_time, data6*25-25, data5*90-90 into
-                outfile '%s' fields terminated by '\t' from %s where cur_time between '%s' and '%s' ''' % (i_data_path, table, time1, time2)
+                outfile '%s' fields terminated by '\t' from %s''' % (i_data_path, table)
     try:
         cursor.execute(sql)
         print(i_data_path, 'done')
@@ -291,7 +291,7 @@ def get_sets(i_data_path):
     fh.close()
     return(sets)
 
-def SQL_data_export(cursor, i_date, time1, time2, i_code, ratios):
+def SQL_data_export(cursor, i_date, i_code, ratios):
     date_str = convert_date(i_date) # 比较特殊，日期形式为8-17而非08-17
     cursor, i_code_number, i_data_path = get_i_code_information(i_code, i_date)
 
@@ -305,38 +305,38 @@ def SQL_data_export(cursor, i_date, time1, time2, i_code, ratios):
         i_info_table = 'exp_instrument_info'
         serial, channel, _, _, _, _ = get_Instru_serial(cursor, i_info_table, i_code)
         data_table = get_data_table(cursor, serial, date_str)
-        get_qx_data(cursor, data_table, channel, i_data_path, ratios, time1, time2)
+        get_qx_data(cursor, data_table, channel, i_data_path, ratios)
 
     elif 'FY' in i_code: #风压
         i_info_table = 'exp_instrument_info'
         serial, channel, _, _, _, _ = get_Instru_serial(cursor, i_info_table, i_code)
         data_table = get_data_table(cursor, serial, date_str)
-        get_fy_data(cursor, data_table, channel, i_data_path, ratios, time1, time2)
+        get_fy_data(cursor, data_table, channel, i_data_path, ratios)
 
     elif 'WYJ' in i_code: #位移计
         i_info_table = 'exp_instrument_info'
         serial, channel, _, _, _, _ = get_Instru_serial(cursor, i_info_table, i_code)
         data_table = get_data_table(cursor, serial, date_str)
-        get_wyj_data(cursor, data_table, channel, i_data_path, ratios, time1, time2)
+        get_wyj_data(cursor, data_table, channel, i_data_path, ratios)
 
     elif 'FZ' in i_code: #风振
         i_info_table = 'exp_instrument_info'
         serial, channel, _, _, _, _ = get_Instru_serial(cursor, i_info_table, i_code)
         data_table = get_data_table(cursor, serial, date_str)
-        get_fz_data(cursor, data_table, channel, i_data_path, ratios, time1, time2)
+        get_fz_data(cursor, data_table, channel, i_data_path, ratios)
 
     elif 'ZD' in i_code: #加速度
         i_info_table = 'exp_instrument_info'
         serial, channel, _, _, _, _ = get_Instru_serial(cursor, i_info_table, i_code)
         data_table = get_data_table(cursor, serial, date_str)
-        get_zd_data(cursor, data_table, channel, i_data_path, ratios, time1, time2)
+        get_zd_data(cursor, data_table, channel, i_data_path, ratios)
 
     elif 'FS' in i_code: #风速
         # print('exp_instrument_info')
         i_info_table = 'exp_instrument_info'
         serial, _, _, _, _, _ = get_Instru_serial(cursor, i_info_table, i_code)
         data_table = get_data_table(cursor, serial, date_str)
-        get_fs_data(cursor, data_table, i_data_path, i_code, time1, time2)
+        get_fs_data(cursor, data_table, i_data_path, i_code)
 
     elif 'GPS' in i_code: #GPS
         i_info_table = 'gps_instrument_info'
@@ -464,7 +464,7 @@ def data_export(code_list, date_list):
             i_data_path = i_data_path.replace('.txt','.pkl')
             if i_date in happy_date_list and not os.path.exists(i_data_path):
                 ratios = get_ratios(i_code, exp_instrument_info_path)
-                SQL_data_export(cursor, i_date, '00:00:00', '23:59:59.999999', i_code, ratios) # 数据导出
+                SQL_data_export(cursor, i_date, i_code, ratios) # 数据导出
                 repair_data(i_code, i_date) # 数据修复并删除txt
             elif i_date in hope_date_list:
                 print('%s：数据修复策略待定，故不下载'%i_code_number)
