@@ -14,7 +14,7 @@ else:
 
 # Peak_Picking_function
 def Peak_Picking_function(acc,Fs,new_f,filtering,PSDfangfa,m,if_log,draw,percent,minpeakdist):
-    engine.cd(r'/SHZX_output/Matlab_Functions')
+    engine.cd(r'/Data/SHZX_output/Matlab_Functions')
     [Frequency,PSD,Locs,Peaks] = engine.ANPSD_function_py(
         matlab.double(np.array(acc).tolist()),
         float(Fs),
@@ -95,7 +95,7 @@ def Peak_Picking(i_code,date_start,date_end,resample_frequency,long,Fs,new_f,fil
 # SSICOV_function
 def SSICOV_function(acc,Ts,Fs,new_f,filtering,if_log,draw,draw_matlab,Xrange,eps_freq):
     SSI = pd.DataFrame([])
-    engine.cd(r'/SHZX_output/Matlab_Functions')
+    engine.cd(r'/Data/SHZX_output/Matlab_Functions')
     [fn,zeta,phi,plotdata] = engine.SSICOV_function_py(
         matlab.double(np.array(acc).tolist()),
         float(Fs),

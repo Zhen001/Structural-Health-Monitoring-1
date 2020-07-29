@@ -9,12 +9,17 @@ from datetime import datetime as datetime
 warnings.filterwarnings("ignore")
 alt.data_transformers.enable('default', max_rows = None) # 避免警告数据量超过5000
 
+alt.data_transformers.enable('default', max_rows = None) # 避免警告数据量超过5000
+Notifications(success_audio='/usr/share/sounds/sound-icons/微信到账300000元.mp3',
+              failure_audio='/usr/share/sounds/sound-icons/叮.mp3',
+              lifetime_success = 6, lifetime_failure = 1, time_threshold=60*5)
+
 # 所需的文件路径
-root_dir = '/SHZX_output' # 手动创建好，不然有权限问题
-os.makedirs(root_dir+'//Others', exist_ok=True); os.chmod(root_dir+'//Others', mode=0o777)
-exp_instrument_info_path = root_dir+'//Others//exp_instrument_info.xlsx'
-database_infomation_path = root_dir+'//Others//database_infomation.pkl'
-data_repair_info_path = root_dir+'//Others//data_repair_info.pkl'
+root_dir = '//Data//SHZX_output' # 手动创建好，不然有权限问题
+os.makedirs(root_dir+'//database_information', exist_ok=True); os.chmod(root_dir+'//database_information', mode=0o777)
+exp_instrument_info_path = root_dir+'//database_information//exp_instrument_info.xlsx'
+database_infomation_path = root_dir+'//database_information//database_infomation.pkl'
+data_repair_info_path = root_dir+'//database_information//data_repair_info.pkl'
 
 
 ## 数据库连接
